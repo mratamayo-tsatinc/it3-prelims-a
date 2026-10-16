@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>C - Complete Me</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -60,34 +61,6 @@
     </div>
     <div id="settingsOverlay" class="modal-overlay" style="display: none;" onclick="closeSettingsModal()"></div>
 
-    <!-- Score Summary Modal -->
-    <div id="scoreSummaryModal" class="modal score-summary-modal" style="display: none;">
-        <div class="modal-content score-summary-content">
-            <div class="score-summary-header">
-                <h2>Session Complete</h2>
-            </div>
-            <div class="score-summary-body">
-                <div class="score-display-section">
-                    <div class="score-circle">
-                        <div class="score-number"><span id="finalScore">0</span>/<span id="maxScore">0</span></div>
-                        <div class="score-label">Score</div>
-                    </div>
-                </div>
-                <div class="student-info-section">
-                    <div class="info-item">
-                        <span class="info-label">Student Email:</span>
-                        <span id="summaryEmail" class="info-value"></span>
-                    </div>
-                </div>
-                <div id="completionMessage" class="completion-message"></div>
-            </div>
-            <div class="modal-footer score-summary-footer">
-                <button id="closeSummaryBtn" class="primary-btn" onclick="closeSummaryModal()">Close</button>
-            </div>
-        </div>
-    </div>
-    <div id="scoreSummaryOverlay" class="modal-overlay" style="display: none;"></div>
-
     <!-- Alert Modal for Reset Prevention -->
     <div id="alertModal" class="modal alert-modal" style="display: none;">
         <div class="modal-content alert-content">
@@ -109,15 +82,20 @@
             <div class="user-info">
                 <small>Logged in as:</small>
                 <div id="userDisplay" style="font-weight: 500; font-size: 0.8rem;"></div>
+                <div id="summaryPanel" class="summary-panel" role="status" aria-live="polite" aria-label="Total points">
+                    <div class="summary-label">Total Score</div>
+                    <div id="summaryValue" class="summary-value">0 / 0</div>
+                </div>
+                <button id="showScoreBtn" class="show-score-btn" type="button" onclick="openScoreModal()"
+                    title="View session score and QR code" aria-label="View session score summary and QR code">
+                    <i class="fa-solid fa-chart-simple" aria-hidden="true"></i>
+                    <span>Show Score</span>
+                </button>
             </div>
             <hr>
             <h3>Exercises</h3>
             <ul id="fileList"></ul>
             <div class="sidebar-bottom">
-                <div id="summaryPanel" class="summary-panel">
-                    <div class="summary-label">Total Points</div>
-                    <div id="summaryValue" class="summary-value">0 / 0</div>
-                </div>
                 <div style="padding-top: 1rem;">
                     <button id="downloadBtn" class="secondary-btn" onclick="exportProgress()" style="width: 100%; font-size: 0.75rem;">Download Results</button>
                 </div>
@@ -154,6 +132,55 @@
             </div>
         </main>
     </div>
+    <!-- Unified Score Summary Modal -->
+    <div id="scoreModal" class="score-summary-modal" style="display: none;" role="dialog"
+        aria-modal="true" aria-labelledby="scoreSummaryTitle" onclick="handleScoreModalBackdrop(event)">
+        <div class="score-card">
+            <div class="score-modal-header">
+                <h2 id="scoreSummaryTitle">Session Score Summary</h2>
+                <button class="score-modal-close" type="button" onclick="closeScoreModal()" aria-label="Close score summary">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="score-modal-body">
+                <div class="score-summary-primary">
+                    <div class="score-summary-total">
+                        <div id="scoreSummaryTotal" class="sst-value">
+                            <span id="scoreSummaryEarned" class="sst-earned">0</span>
+                            <span class="sst-separator" aria-hidden="true">/</span>
+                            <span id="scoreSummaryMaximum" class="sst-maximum">0</span>
+                        </div>
+                        <div class="sst-label">Total Complete Me score</div>
+                    </div>
+                    <div class="qr-share-section">
+                        <div id="scoreQrCodeBox" class="qr-code-box" aria-label="QR code linking to a shareable results page">
+                            <span class="qr-loading">Preparing QR…</span>
+                        </div>
+                        <p class="qr-caption">Scan to view a shareable results page</p>
+                    </div>
+                </div>
+                <div class="score-summary-user">
+                    <div class="ssu-label">Logged in as</div>
+                    <div id="scoreSummaryUser" class="ssu-value"></div>
+                    <div id="scoreSummaryClock" class="ssu-clock"></div>
+                </div>
+                <section class="score-summary-exercise-section" aria-labelledby="scoreSummaryExerciseHeading">
+                    <h3 id="scoreSummaryExerciseHeading">Exercise breakdown</h3>
+                    <div id="scoreBreakdown" class="score-summary-exercise-breakdown"></div>
+                </section>
+            </div>
+            <div class="score-modal-footer">
+                <span id="scoreSummaryDownloadStatus" class="score-summary-download-status" role="status" aria-live="polite"></span>
+                <button class="secondary-btn" type="button" onclick="closeScoreModal()">Close</button>
+                <button id="scoreSummaryDownloadBtn" class="primary-btn score-summary-download-btn" type="button" onclick="downloadScoreSummaryPng()">
+                    <i class="fa-solid fa-download" aria-hidden="true"></i>
+                    <span>Download PNG</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="script.js"></script>
 </body>
