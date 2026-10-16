@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C - Complete Me</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loginOverlay" class="login-overlay">
+        <div class="card login-card">
+            <div class="login-header">
+                <h2>C - Complete Me Activity</h2>
+                <button id="settingsBtn" class="settings-icon" onclick="openSettingsModal()" title="Settings">⚙️</button>
+            </div>
+            <p>Enter your credentials to access the exercises.</p>
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="School Email">
+                <input type="text" id="studentNumInput" placeholder="Student Number">
+            </div>
+            <button class="primary-btn" onclick="handleLogin()">Login</button>
+            <p id="loginError" class="error-text"></p>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="modal-close" onclick="closeSettingsModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <label class="settings-label">Mode</label>
+                    <div class="mode-options">
+                        <label class="radio-option">
+                            <input type="radio" name="mode" value="practice" checked onchange="handleModeChange()">
+                            <span>Practice Mode</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="mode" value="exam" onchange="handleModeChange()">
+                            <span>Exam Mode</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section" id="timerSection" style="display: none;">
+                    <label class="settings-label">Timer (minutes)</label>
+                    <input type="number" id="timerInput" min="1" max="999" value="15" class="timer-input" placeholder="Enter minutes" oninput="validateTimerInput(this)">
+                    <small class="input-hint">Enter a number between 1 and 999 minutes</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" onclick="closeSettingsModal()">Cancel</button>
+                <button class="primary-btn" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+    <div id="settingsOverlay" class="modal-overlay" style="display: none;" onclick="closeSettingsModal()"></div>
+
+    <!-- Score Summary Modal -->
+    <div id="scoreSummaryModal" class="modal score-summary-modal" style="display: none;">
+        <div class="modal-content score-summary-content">
+            <div class="score-summary-header">
+                <h2>Session Complete</h2>
+            </div>
+            <div class="score-summary-body">
+                <div class="score-display-section">
+                    <div class="score-circle">
+                        <div class="score-number"><span id="finalScore">0</span>/<span id="maxScore">0</span></div>
+                        <div class="score-label">Score</div>
+                    </div>
+                </div>
+                <div class="student-info-section">
+                    <div class="info-item">
+                        <span class="info-label">Student Email:</span>
+                        <span id="summaryEmail" class="info-value"></span>
+                    </div>
+                </div>
+                <div id="completionMessage" class="completion-message"></div>
+            </div>
+            <div class="modal-footer score-summary-footer">
+                <button id="closeSummaryBtn" class="primary-btn" onclick="closeSummaryModal()">Close</button>
+            </div>
+        </div>
+    </div>
+    <div id="scoreSummaryOverlay" class="modal-overlay" style="display: none;"></div>
+
+    <!-- Alert Modal for Reset Prevention -->
+    <div id="alertModal" class="modal alert-modal" style="display: none;">
+        <div class="modal-content alert-content">
+            <div class="alert-header">
+                <h3 id="alertTitle">Notice</h3>
+            </div>
+            <div class="alert-body">
+                <p id="alertMessage"></p>
+            </div>
+            <div class="modal-footer alert-footer">
+                <button class="primary-btn" onclick="closeAlertModal()">OK</button>
+            </div>
+        </div>
+    </div>
+    <div id="alertOverlay" class="modal-overlay" style="display: none;" onclick="closeAlertModal()"></div>
+
+    <div id="appContainer" class="main-layout" style="display: none;">
+        <nav class="sidebar">
+            <div class="user-info">
+                <small>Logged in as:</small>
+                <div id="userDisplay" style="font-weight: 500; font-size: 0.8rem;"></div>
+            </div>
+            <hr>
+            <h3>Exercises</h3>
+            <ul id="fileList"></ul>
+            <div class="sidebar-bottom">
+                <div id="summaryPanel" class="summary-panel">
+                    <div class="summary-label">Total Points</div>
+                    <div id="summaryValue" class="summary-value">0 / 0</div>
+                </div>
+                <div style="padding-top: 1rem;">
+                    <button id="downloadBtn" class="secondary-btn" onclick="exportProgress()" style="width: 100%; font-size: 0.75rem;">Download Results</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="content">
+            <div id="timerContainer" class="timer-container" style="display: none;">
+                <div class="timer-badge">
+                    <span class="timer-label">Time Remaining:</span>
+                    <span id="timerDisplay" class="timer-display">15:00</span>
+                </div>
+            </div>
+
+            <div id="loader" class="loader-container" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading code...</p>
+            </div>
+
+            <div id="exerciseArea">
+                <div class="card-header">
+                    <h2 id="currentFileName">Select an Exercise</h2>
+                    <p>Fill in the blanks to make the C code valid.</p>
+                </div>
+                
+                <div class="code-editor">
+                    <pre id="codeDisplay"></pre>
+                </div>
+
+                <div class="actions">
+                    <button id="actionButton" class="primary-btn">Verify Code</button>
+                    <p id="feedback"></p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
