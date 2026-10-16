@@ -36,7 +36,7 @@ let currentUser = "";
 // Settings and Mode Management
 let appSettings = {
     mode: 'exam', // 'practice' or 'exam'
-    timerMinutes: 60
+    timerMinutes: 30
 };
 
 let timerIntervalId = null;
