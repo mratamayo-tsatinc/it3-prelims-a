@@ -1,5 +1,5 @@
 const EXERCISES = [
-    // EASY - Simple initialization / single blank
+
     'Basic ATM Simulation.c',
     'Basic Structure and Printing.c',
     'Basic Structure.c',
@@ -8,7 +8,6 @@ const EXERCISES = [
     'Circle Area Calculator.c',
     'Cube Volume Finder.c',
 
-    // MEDIUM - Operator or increment blanks
     'Declaring Constant.c',
     'Escape Characters.c',
     'Invoice Generation.c',
@@ -18,7 +17,6 @@ const EXERCISES = [
     'Print Triangle.c',
     'Product Discount Calculator.c',
 
-    // HARD - Multiple blanks
     'Rainbow Arch.c',
     'Rectangle Perimeter.c',
     'Starry Ascension.c',
@@ -487,6 +485,9 @@ function openSettingsModal() {
     // Set current settings in the modal
     document.querySelector(`input[name="mode"][value="${appSettings.mode}"]`).checked = true;
     document.getElementById('timerInput').value = appSettings.timerMinutes;
+    document.getElementById('timerValidationMessage').textContent = '';
+    cancelClearSavedStudentProgress();
+    updateClearProgressStatus();
     
     // Show/hide timer section based on mode
     const timerSection = document.getElementById('timerSection');
@@ -498,6 +499,7 @@ function openSettingsModal() {
 }
 
 function closeSettingsModal() {
+    cancelClearSavedStudentProgress();
     document.getElementById('settingsModal').style.display = 'none';
     document.getElementById('settingsOverlay').style.display = 'none';
 }
@@ -515,9 +517,11 @@ function handleModeChange() {
 
 function validateTimerInput(input) {
     let value = parseInt(input.value, 10);
+    const validationMessage = document.getElementById('timerValidationMessage');
     
     if (isNaN(value)) {
         input.classList.add('invalid');
+        if (validationMessage) validationMessage.textContent = 'Enter a timer value between 1 and 999 minutes.';
         return false;
     }
     
@@ -530,8 +534,79 @@ function validateTimerInput(input) {
     } else {
         input.classList.remove('invalid');
     }
+    if (validationMessage) validationMessage.textContent = '';
     
     return true;
+}
+
+function getSavedStudentProgressKeys() {
+    const keys = [];
+    try {
+        for (let index = 0; index < localStorage.length; index++) {
+            const key = localStorage.key(index);
+            if (key?.startsWith(EXAM_STORAGE_PREFIX)) keys.push(key);
+        }
+    } catch (error) {
+        console.warn('Unable to inspect saved student progress.', error);
+    }
+    return keys;
+}
+
+function updateClearProgressStatus(message = '', isError = false) {
+    const status = document.getElementById('clearProgressStatus');
+    const clearButton = document.getElementById('clearProgressBtn');
+    if (!status || !clearButton) return;
+    const count = getSavedStudentProgressKeys().length;
+    status.textContent = message || (count === 0
+        ? 'No student progress is saved in this browser.'
+        : `${count} student record${count === 1 ? '' : 's'} saved in this browser.`);
+    status.classList.toggle('error-text', isError);
+    clearButton.disabled = count === 0;
+}
+
+function requestClearSavedStudentProgress() {
+    const keys = getSavedStudentProgressKeys();
+    if (keys.length === 0) {
+        updateClearProgressStatus('No saved student progress to clear.');
+        return;
+    }
+
+    const confirmation = document.getElementById('clearProgressConfirmation');
+    const message = document.getElementById('clearProgressConfirmMessage');
+    const confirmButton = document.getElementById('confirmClearProgressBtn');
+    const recordLabel = `${keys.length} student record${keys.length === 1 ? '' : 's'}`;
+    message.textContent = `This will permanently remove ${recordLabel} from this browser. This action cannot be undone.`;
+    confirmButton.textContent = `Clear ${keys.length} record${keys.length === 1 ? '' : 's'}`;
+    confirmation.hidden = false;
+    document.getElementById('clearProgressBtn').disabled = true;
+    confirmButton.focus();
+}
+
+function cancelClearSavedStudentProgress() {
+    const confirmation = document.getElementById('clearProgressConfirmation');
+    if (confirmation) confirmation.hidden = true;
+    const clearButton = document.getElementById('clearProgressBtn');
+    if (clearButton) clearButton.disabled = getSavedStudentProgressKeys().length === 0;
+}
+
+function confirmClearSavedStudentProgress() {
+    const keys = getSavedStudentProgressKeys();
+    if (keys.length === 0) {
+        cancelClearSavedStudentProgress();
+        updateClearProgressStatus('No saved student progress to clear.');
+        return;
+    }
+
+    const recordLabel = `${keys.length} student record${keys.length === 1 ? '' : 's'}`;
+    try {
+        keys.forEach(key => localStorage.removeItem(key));
+        cancelClearSavedStudentProgress();
+        updateClearProgressStatus(`${recordLabel} cleared.`);
+    } catch (error) {
+        console.error('Unable to clear saved student progress.', error);
+        cancelClearSavedStudentProgress();
+        updateClearProgressStatus('Could not clear saved progress. Please try again.', true);
+    }
 }
 
 function saveSettings() {
@@ -542,7 +617,9 @@ function saveSettings() {
     // Validate timer input
     if (selectedMode === 'exam') {
         if (isNaN(timerValue) || timerValue < 1 || timerValue > 999) {
-            alert('Please enter a valid timer value between 1 and 999 minutes.');
+            timerInput.classList.add('invalid');
+            document.getElementById('timerValidationMessage').textContent = 'Enter a timer value between 1 and 999 minutes.';
+            timerInput.focus();
             return;
         }
         appSettings.timerMinutes = timerValue;

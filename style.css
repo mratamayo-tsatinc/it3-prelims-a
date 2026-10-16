@@ -493,6 +493,68 @@ body, html {
     color: #888;
 }
 
+.settings-validation {
+    display: block;
+    min-height: 1rem;
+    margin-top: 0.35rem;
+    color: var(--error);
+    font-size: 0.78rem;
+}
+
+.settings-danger-zone {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid rgba(176, 0, 32, 0.18);
+    border-radius: 7px;
+    background: rgba(176, 0, 32, 0.025);
+}
+
+.settings-danger-copy { min-width: 0; }
+.settings-danger-zone h3 { margin: 0 0 0.25rem; color: var(--text-main); font-size: 0.9rem; }
+.settings-danger-zone p { margin: 0; color: #666; font-size: 0.78rem; line-height: 1.4; }
+.settings-danger-zone p.error-text { color: var(--error); }
+
+.danger-btn {
+    flex: none;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--error);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--error);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.danger-btn:hover,
+.danger-btn:focus-visible { background: rgba(176, 0, 32, 0.08); outline: none; }
+.danger-btn:disabled { opacity: 0.45; cursor: not-allowed; background: transparent; }
+.danger-btn-filled { background: var(--error); color: #fff; }
+.danger-btn-filled:hover,
+.danger-btn-filled:focus-visible { background: #8e001a; }
+
+.inline-confirmation {
+    display: flex;
+    gap: 0.85rem;
+    margin-top: 0.8rem;
+    padding: 1rem;
+    border: 1px solid rgba(176, 0, 32, 0.35);
+    border-radius: 7px;
+    background: #fff6f7;
+}
+
+.inline-confirmation[hidden] { display: none; }
+.inline-confirmation-icon { flex: none; padding-top: 0.1rem; color: var(--error); font-size: 1.1rem; }
+.inline-confirmation-content { min-width: 0; }
+.inline-confirmation-content h3 { margin: 0 0 0.35rem; color: var(--error); font-size: 0.95rem; }
+.inline-confirmation-content p { margin: 0; color: #555; font-size: 0.8rem; line-height: 1.5; }
+.inline-confirmation-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+.compact-btn { padding: 0.55rem 0.75rem; font-size: 0.8rem; }
+
 /* Timer display in main app */
 .timer-container {
     position: fixed;

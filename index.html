@@ -51,6 +51,32 @@
                     <label class="settings-label">Timer (minutes)</label>
                     <input type="number" id="timerInput" min="1" max="999" value="15" class="timer-input" placeholder="Enter minutes" oninput="validateTimerInput(this)">
                     <small class="input-hint">Enter a number between 1 and 999 minutes</small>
+                    <small id="timerValidationMessage" class="settings-validation" role="status" aria-live="polite"></small>
+                </div>
+
+                <section class="settings-danger-zone" aria-labelledby="clearProgressHeading">
+                    <div class="settings-danger-copy">
+                        <h3 id="clearProgressHeading">Saved student progress</h3>
+                        <p id="clearProgressStatus" role="status" aria-live="polite"></p>
+                    </div>
+                    <button id="clearProgressBtn" class="danger-btn" type="button" onclick="requestClearSavedStudentProgress()">
+                        Clear progress
+                    </button>
+                </section>
+
+                <div id="clearProgressConfirmation" class="inline-confirmation" role="alertdialog"
+                    aria-modal="false" aria-labelledby="clearProgressConfirmTitle" aria-describedby="clearProgressConfirmMessage" hidden>
+                    <div class="inline-confirmation-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="inline-confirmation-content">
+                        <h3 id="clearProgressConfirmTitle">Clear saved progress?</h3>
+                        <p id="clearProgressConfirmMessage"></p>
+                        <div class="inline-confirmation-actions">
+                            <button class="secondary-btn compact-btn" type="button" onclick="cancelClearSavedStudentProgress()">Cancel</button>
+                            <button id="confirmClearProgressBtn" class="danger-btn danger-btn-filled" type="button" onclick="confirmClearSavedStudentProgress()">
+                                Clear records
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
